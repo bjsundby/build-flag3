@@ -174,6 +174,8 @@ setInterval(function () {
 }, 500)
 
 */
-console.log("Start motor 1000")
-motor.move(1000);
-console.log("Finsihed")
+console.log("Start motor 10000")
+motor.move(10000);
+console.log("Start motor -10000")
+motor.move(-10000);
+console.log("Finished")
