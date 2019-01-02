@@ -12,7 +12,7 @@
  */
 
 
-var wpi = require('wiring-pi');
+var wpi = require('wiringpi-node');
 
 wpi.setup('gpio');
 
@@ -354,8 +354,8 @@ function stepMotor()
   // pin to the desired direction.
   // ENHANCEMENT: It is possible we can eliminate the cost of setting the direction and merely look
   // set it when the direction changes from the last time we stepped the motor.
-  //console.log("stepMotor: isDigital=%d, stepDelay=%d, stepPin=%d, directionPin=%d",
-  //	this._isDigital, this._stepDelay, this._stepPin, this._directionPin);
+  console.log("stepMotor: isDigital=%d, stepDelay=%d, stepPin=%d, directionPin=%d",
+  	this._isDigital, this._stepDelay, this._stepPin, this._directionPin);
   if (this._isDigital === true) {
      if (this._direction == FORWARD) {
         wpi.digitalWrite(this._directionPin, wpi.HIGH);
