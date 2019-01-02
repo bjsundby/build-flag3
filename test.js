@@ -1,6 +1,5 @@
 /* --- Dependencies ---------------------------------- */
 
-
 var wpi = require("wiring-pi")
 var Stepper = require('wpi-stepper').Stepper;
 
@@ -167,8 +166,8 @@ Object.keys(signals).forEach(function (signal) {
 });
 
 // Main processing loop, runs 2Hz
-const server = app.listen(app.get('port'), () => {
-   setInterval(function () {
-    processFlag()
-  }, 500)
-})
+setInterval(function () {
+ processFlag()
+}, 500)
+
+
