@@ -44,7 +44,7 @@ function readTopPositionFlagSensor() {
 function calibrateFlagBottom() {
   if (readBottomPositionFlagSensor() == 0) {
     console.log("calibrateFlagBottom, move down")
-    motor.move(stepRange, function () {
+    motor.move(stepRange).then(() =>  {
       console.log("calibrateFlagBottom, move down")
       if (readBottomPositionFlagSensor() == 0) {
         calibrateFlagBottom();
