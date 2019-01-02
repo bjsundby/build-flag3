@@ -43,17 +43,21 @@ function readTopPositionFlagSensor() {
 
 function calibrateFlagBottom() {
   if (readBottomPositionFlagSensor() == 0) {
+    console.log("calibrateFlagBottom, move down")
     motor.move(stepRange, function () {
+      console.log("calibrateFlagBottom, move down")
       if (readBottomPositionFlagSensor() == 0) {
         calibrateFlagBottom();
       }
       else {
+        console.log("calibrateFlagBottom, hit bottom")
         currentFlagPosition = 0
         flagStatus = 2
       }
     })
   }
   else {
+    console.log("calibrateFlagBottom, is at bottom")
     currentFlagPosition = 0
     flagStatus = 2
   }
