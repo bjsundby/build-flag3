@@ -168,6 +168,12 @@ Object.keys(signals).forEach(function (signal) {
 });
 
 // Main processing loop, runs 2Hz
+/*
 setInterval(function () {
  processFlag()
 }, 500)
+
+*/
+console.log("Start motor 1000")
+motor.move(1000);
+console.log("Finsihed")
