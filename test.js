@@ -125,7 +125,7 @@ function processFlag() {
     console.log("processFlag, flagStatus: " + flagStatus)
     // Check for inital calibration
     if (flagStatus == 0) {
-      flagStatus = 1git
+      flagStatus = 1
       calibrateFlagBottom()
     }
 
