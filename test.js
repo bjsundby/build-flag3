@@ -169,5 +169,3 @@ Object.keys(signals).forEach(function (signal) {
 setInterval(function () {
  processFlag()
 }, 500)
-
-
