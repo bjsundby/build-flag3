@@ -122,9 +122,10 @@ function MoveFlagToPosition() {
 
 function processFlag() {
   try {
+    console.log("processFlag, flagStatus: " + flagStatus)
     // Check for inital calibration
     if (flagStatus == 0) {
-      flagStatus = 1
+      flagStatus = 1git
       calibrateFlagBottom()
     }
 
