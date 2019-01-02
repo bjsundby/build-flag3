@@ -138,9 +138,6 @@ function processFlag() {
       flagStatus = 5
       MoveFlagToPosition()
     }
-
-    // Notify clients about positions
-    notifyChangedFlagPosition()
   } catch (error) {
     console.log("Crashed in processFlag", error)
   }
