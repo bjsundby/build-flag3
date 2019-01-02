@@ -28,7 +28,8 @@ const pins = [
   22, // B+
   23  // B-
 ];
-const motor = new Stepper({ pins, steps: 4096 });
+const mode = MODES.SINGLE;
+const motor = new Stepper({ pins, mode, steps: 4096 });
 motor.speed = 15;
 
 /* --- Common functions ------------------------------- */
