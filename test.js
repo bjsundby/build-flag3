@@ -1,8 +1,8 @@
 /* --- Dependencies ---------------------------------- */
 
 var wpi = require("wiring-pi")
-var Stepper = require('wpi-stepper').Stepper;
-
+//var Stepper = require('wpi-stepper').Stepper;
+import { MODES, Stepper } from 'wpi-stepper';
 
 /* --- State variables ------------------------------- */
 
