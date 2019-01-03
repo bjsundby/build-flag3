@@ -1,8 +1,7 @@
 /* --- Dependencies ---------------------------------- */
 
 var wpi = require("wiring-pi")
-//var Stepper = require('wpi-stepper').Stepper;
-import { MODES, Stepper } from 'wpi-stepper';
+var Stepper = require('wpi-stepper').Stepper;
 
 /* --- State variables ------------------------------- */
 
@@ -22,6 +21,20 @@ wpi.pinMode(bottomsensorpin, wpi.INPUT)
 wpi.pinMode(topsensorpin, wpi.INPUT)
 
 // Setup stepper motor for flag
+const MODES = {
+  SINGLE: [
+    [ 1, 0, 0, 0 ],
+    [ 0, 1, 0, 0 ],
+    [ 0, 0, 1, 0 ],
+    [ 0, 0, 0, 1 ]
+  ],
+  DUAL: [
+    [ 1, 0, 0, 1 ],
+    [ 0, 1, 0, 1 ],
+    [ 0, 1, 1, 0 ],
+    [ 1, 0, 1, 0 ]
+  ]
+};
 const pins = [
   17, // A+
   27, // A-
