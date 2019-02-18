@@ -2,21 +2,19 @@
 
 var express = require('express')
 var Client = require('node-rest-client').Client
-var i2cBus = require('i2c-bus')
 var ws281x = require('rpi-ws281x-native')
-var wpi = require("wiring-pi")
-var stepperWiringPi = require("./stepper-wiringpi")
-
+var wpi = require("node-wiring-pi")
 var client = new Client()
 
 /* --- State variables ------------------------------- */
 
-const stepRange = 200         // Number of steps for each separate motor run
-var stepFactor = 162          // Factor for computing number of steps from %
+const stepRange = 5           // Number of steps for each separate motor run
+var stepFactor = 14.2         // Factor for computing number of steps from %
 var currentFlagPosition = 0   // Current flag position in steps
 var topFlagPosition = 0       // Step count for top flag position
 var nextFlagPosition = 0      // Flag position in steps
 var flagStatus = 0            // 0=start cal bottom, 1=cal bottom, 2=start cal top, 3=cal top, 4=stopped, 5=moving
+var topLedPosition = 0        // 0=start, 1=middle, 2=moving, 3=left, 4=right
 
 var ledFunction = {
   OFF: 'Off',
@@ -25,9 +23,9 @@ var ledFunction = {
   BLINK: 'Blink'
 }
 
-const numberOfLeds = 19
-const numberOfTopLeds = 3
-const numberOfBottomLeds = 16
+const numberOfLeds = 8
+const numberOfTopLeds = 4
+const numberOfBottomLeds = 4
 
 var topLedFunction = ledFunction.OFF
 var bottomLedFunction = ledFunction.OFF
@@ -52,51 +50,65 @@ var definedColorSet = [
   colorCombine(0, 255, 0),
   colorCombine(0, 0, 255),
   colorCombine(255, 0, 0),
-  colorCombine(0, 255, 0),
-  colorCombine(0, 0, 255),
-  colorCombine(255, 0, 0),
-  colorCombine(0, 255, 0),
-  colorCombine(0, 0, 255),
-  colorCombine(255, 0, 0),
-  colorCombine(0, 255, 0),
-  colorCombine(0, 0, 255),
-  colorCombine(255, 0, 0),
-  colorCombine(0, 255, 0),
-  colorCombine(0, 0, 255),
-  colorCombine(255, 0, 0)
+  colorCombine(0, 255, 0)
 ]
-
-var currentColorSet = new Uint32Array(numberOfLeds)
-for (index = 0; index < 19; index++) {
-  currentColorSet[index] = definedColorSet[index]
-}
-
 /* --- Setup subsystems ------------------------------- */
+
+wpi.setup('gpio')
 
 // Setup web server
 var app = express()
 app.set('port', (process.env.PORT || 3002))
 
 // Setup Leds
-var pixelData = new Uint32Array(numberOfLeds)
-ws281x.init(numberOfLeds)
+const channels = ws281x.init({
+  dma: 5,
+  freq: 800000,
+  channels: [
+    { count: 11, gpio: 18, invert: false, brightness: 100, stripType: 'sk6812w' }
+  ]
+});
+const currentColorSet = channels[0].array;
+for (index = 0; index < numberOfLeds; index++) {
+  currentColorSet[index] = definedColorSet[index]
+}
 
 // Setup sensors for detecting flag at bottom
 var bottomsensorpin = 24
 var topsensorpin = 25
+var lightswitchpin = 23
 wpi.pinMode(bottomsensorpin, wpi.INPUT)
 wpi.pinMode(topsensorpin, wpi.INPUT)
+wpi.pinMode(lightswitchpin, wpi.INPUT)
 
-// Setup stepper motor for flag
-var pin1 = 17
-var pin2 = 27
-var pin3 = 22
-var pin4 = 23
-wpi.setup('gpio')
-var motor1 = stepperWiringPi.setup(200, pin1, pin2, pin3, pin4)
-motor1.setSpeed(200)
+// Setup stepper motors
+let spec = {
+  address: 0x60,
+  steppers: [{ W1: 'M1', W2: 'M2' }, { W1: 'M3', W2: 'M4' }]
+};
+var motorHat = require('motor-hat')(spec)
+motorHat.init();
+motorHat.steppers[0].setSteps(200);
+motorHat.steppers[0].setSpeed({ rpm: 100 });
+motorHat.steppers[1].setSteps(200);
+motorHat.steppers[1].setSpeed({ rpm: 20 });
 
 /* --- Common functions ------------------------------- */
+
+function readBottomPositionFlagSensor() {
+  var sensorValue = wpi.digitalRead(bottomsensorpin)
+  return sensorValue
+}
+
+function readTopPositionFlagSensor() {
+  var sensorValue = wpi.digitalRead(topsensorpin)
+  return sensorValue
+}
+
+function readLightSwitch() {
+  var sensorValue = wpi.digitalRead(lightswitchpin)
+  return sensorValue
+}
 
 // Generate integer from RGB value
 function colorCombine(r, g, b) {
@@ -179,17 +191,9 @@ function lightsOffLeds() {
   ws281x.render(currentColorSet)
 }
 
-function readBottomPositionFlagSensor() {
-  return wpi.digitalRead(bottomsensorpin)
-}
-
-function readTopPositionFlagSensor() {
-  return wpi.digitalRead(topsensorpin)
-}
-
 function calibrateFlagBottom() {
   if (readBottomPositionFlagSensor() == 0) {
-    motor1.step(stepRange, function () {
+    motorHat.steppers[0].step('back', stepRange, (err, result) => {
       if (readBottomPositionFlagSensor() == 0) {
         calibrateFlagBottom();
       }
@@ -207,7 +211,7 @@ function calibrateFlagBottom() {
 
 function calibrateFlagTop() {
   if (readTopPositionFlagSensor() == 0) {
-    motor1.step(-stepRange, function () {
+    motorHat.steppers[0].step('fwd', stepRange, (err, result) => {
       currentFlagPosition += stepRange
       if (readTopPositionFlagSensor() == 0) {
         calibrateFlagTop()
@@ -226,6 +230,19 @@ function calibrateFlagTop() {
   }
 }
 
+function calibrateTopLights() {
+  topLedPosition = 2
+  motorHat.steppers[1].step('fwd', stepRange, (err, result) => {
+    if (readLightSwitch() == 0) {
+      calibrateTopLights();
+    } else {
+      motorHat.steppers[1].step('back', 475, (err, result) => {
+        topLedPosition = 1
+      })
+    }
+  })
+}
+
 function MoveFlagToPosition() {
   if (currentFlagPosition != nextFlagPosition) {
     var steps = (currentFlagPosition - nextFlagPosition);
@@ -233,7 +250,7 @@ function MoveFlagToPosition() {
       if (steps < -stepRange) {
         steps = -stepRange
       }
-      motor1.step(steps, function () {
+      motorHat.steppers[0].step('fwd', -steps, (err, result) => {
         currentFlagPosition -= steps;
         if (readTopPositionFlagSensor() == 0) {
           MoveFlagToPosition()
@@ -247,7 +264,7 @@ function MoveFlagToPosition() {
       if (steps > stepRange) {
         steps = stepRange
       }
-      motor1.step(steps, function () {
+      motorHat.steppers[0].step('back', steps, (err, result) => {
         currentFlagPosition -= steps
         if (readBottomPositionFlagSensor() == 0) {
           MoveFlagToPosition()
@@ -267,29 +284,29 @@ function MoveFlagToPosition() {
 function setTopLeds(ledFunction) {
   switch (ledFunction) {
     case "Off":
-      currentColorSet.fill(colorCombine(0, 0, 0), 16, 19)
+      currentColorSet.fill(colorCombine(0, 0, 0), 4, 8)
       break
     case "On":
-      for (index = 16; index < 19; index++) {
+      for (index = 4; index < 8; index++) {
         currentColorSet[index] = definedColorSet[index]
       }
       break
     case "Rotate":
       topLedCurrent = (topLedCurrent + 1) % numberOfTopLeds;
-      for (ledIndex = 16; ledIndex < 19; ledIndex++) {
+      for (ledIndex = 4; ledIndex < 8; ledIndex++) {
         var colorIndex = (topLedCurrent + ledIndex) % numberOfTopLeds;
-        currentColorSet[ledIndex] = definedColorSet[16 + colorIndex]
+        currentColorSet[ledIndex] = definedColorSet[4 + colorIndex]
       }
       break
     case "Blink":
       if (topLedBlinkState) {
-        for (index = 16; index < 19; index++) {
+        for (index = 4; index < 8; index++) {
           currentColorSet[index] = definedColorSet[index]
         }
         topLedBlinkState = false
       }
       else {
-        currentColorSet.fill(colorCombine(0, 0, 0), 16, 19)
+        currentColorSet.fill(colorCombine(0, 0, 0), 4, 8)
         topLedBlinkState = true
       }
       break
@@ -299,29 +316,29 @@ function setTopLeds(ledFunction) {
 function setBottomLeds(ledFunction) {
   switch (ledFunction) {
     case "Off":
-      currentColorSet.fill(colorCombine(0, 0, 0), 0, 16)
+      currentColorSet.fill(colorCombine(0, 0, 0), 0, 4)
       break
     case "On":
-      for (index = 0; index < 16; index++) {
+      for (index = 0; index < 4; index++) {
         currentColorSet[index] = definedColorSet[index]
       }
       break
     case "Rotate":
       bottomLedCurrent = (bottomLedCurrent + 1) % numberOfBottomLeds;
-      for (ledIndex = 0; ledIndex < 16; ledIndex++) {
+      for (ledIndex = 0; ledIndex < 4; ledIndex++) {
         var colorIndex = (bottomLedCurrent + ledIndex) % numberOfBottomLeds;
         currentColorSet[ledIndex] = definedColorSet[colorIndex]
       }
       break
     case "Blink":
       if (bottomLedBlinkState) {
-        for (index = 0; index < 16; index++) {
+        for (index = 0; index < 4; index++) {
           currentColorSet[index] = definedColorSet[index]
         }
         bottomLedBlinkState = false
       }
       else {
-        currentColorSet.fill(colorCombine(0, 0, 0), 0, 16)
+        currentColorSet.fill(colorCombine(0, 0, 0), 0, 4)
         bottomLedBlinkState = true
       }
       break
@@ -379,6 +396,28 @@ function processLeds() {
     ws281x.render(currentColorSet)
   } catch (error) {
     console.log("Crashed in processLeds", error)
+  }
+
+  // middle
+  if (topLedPosition == 1) {
+    topLedPosition = 2
+    motorHat.steppers[1].step('back', 270, (err, result) => {
+      topLedPosition = 4
+    })
+  } else 
+  // left
+  if (topLedPosition == 3) {
+    topLedPosition = 2
+    motorHat.steppers[1].step('back', 540, (err, result) => {
+      topLedPosition = 4
+    })
+  } else 
+  // right
+  if (topLedPosition == 4) {
+    topLedPosition = 2
+    motorHat.steppers[1].step('fwd', 540, (err, result) => {
+      topLedPosition = 3
+    })
   }
 }
 
@@ -459,6 +498,8 @@ Object.keys(signals).forEach(function (signal) {
     shutdown(signal, signals[signal])
   });
 });
+
+calibrateTopLights()
 
 // Main processing loop, runs 2Hz
 const server = app.listen(app.get('port'), () => {

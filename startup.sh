@@ -3,8 +3,8 @@
 #
 # Edit crontab file by running crontab -e
 # Add the following line refering to this file's position
-#  @reboot /usr/bin/sudo -u pi -H sh /home/pi/build-flag2/startup.sh
+#  @reboot /usr/bin/sudo -u pi -H sh /home/pi/build-flag3/startup.sh
 #
 
-cd /home/pi/build-flag2
-sudo npm start >> build-flag2.log 2>> build-flag2_err.log
+cd /home/pi/build-flag3
+sudo npm start >> build-flag3.log 2>> build-flag3_err.log

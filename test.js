@@ -1,7 +1,18 @@
 /* --- Dependencies ---------------------------------- */
 
-var wpi = require("wiring-pi")
-var Stepper = require('wpi-stepper').Stepper;
+var wpi = require("node-wiring-pi")
+wpi.setup('gpio')
+
+let spec = {
+  address: 0x60,
+  steppers: [{ W1: 'M1', W2: 'M2' }, { W1: 'M3', W2: 'M4' }]
+};
+var motorHat = require('motor-hat')(spec)
+motorHat.init();
+motorHat.steppers[0].setSteps(200);
+motorHat.steppers[0].setSpeed({sps:180});
+motorHat.steppers[1].setSteps(200);
+motorHat.steppers[1].setSpeed({sps:180});
 
 /* --- State variables ------------------------------- */
 
@@ -19,6 +30,7 @@ var bottomsensorpin = 24
 var topsensorpin = 25
 wpi.pinMode(bottomsensorpin, wpi.INPUT)
 wpi.pinMode(topsensorpin, wpi.INPUT)
+
 
 // Setup stepper motor for flag
 const MODES = {
@@ -41,9 +53,6 @@ const pins = [
   22, // B+
   23  // B-
 ];
-const mode = MODES.SINGLE;
-const motor = new Stepper({ pins, mode, steps: 4096 });
-motor.speed = 15;
 
 /* --- Common functions ------------------------------- */
 
@@ -58,7 +67,7 @@ function readTopPositionFlagSensor() {
 function calibrateFlagBottom() {
   if (readBottomPositionFlagSensor() == 0) {
     console.log("calibrateFlagBottom, move down")
-    motor.move(stepRange).then(() =>  {
+    motorHat.steppers[0].step('back', stepRange, (err, result) => {
       console.log("calibrateFlagBottom, move down")
       if (readBottomPositionFlagSensor() == 0) {
         calibrateFlagBottom();
@@ -79,7 +88,7 @@ function calibrateFlagBottom() {
 
 function calibrateFlagTop() {
   if (readTopPositionFlagSensor() == 0) {
-    motor.move(-stepRange, function () {
+    motorHat.steppers[0].step('back', -stepRange, (err, result) => {
       currentFlagPosition += stepRange
       if (readTopPositionFlagSensor() == 0) {
         calibrateFlagTop()
@@ -105,7 +114,7 @@ function MoveFlagToPosition() {
       if (steps < -stepRange) {
         steps = -stepRange
       }
-      motor.move(steps, function () {
+      motorHat.steppers[0].step('back', steps, (err, result) => {
         currentFlagPosition -= steps;
         if (readTopPositionFlagSensor() == 0) {
           MoveFlagToPosition()
@@ -119,7 +128,7 @@ function MoveFlagToPosition() {
       if (steps > stepRange) {
         steps = stepRange
       }
-      motor.move(steps, function () {
+      motorHat.steppers[0].step('back', steps, (err, result) => {
         currentFlagPosition -= steps
         if (readBottomPositionFlagSensor() == 0) {
           MoveFlagToPosition()
@@ -188,8 +197,10 @@ setInterval(function () {
 }, 500)
 
 */
-console.log("Start motor 10000")
-motor.move(10000);
-console.log("Start motor -10000")
-motor.move(-10000);
-console.log("Finished")
+console.log("Start motor 1")
+motorHat.steppers[0].step('back', 200, (err, result) => {
+})
+
+console.log("Start motor 2")
+motorHat.steppers[1].step('back', 200, (err, result) => {
+})
