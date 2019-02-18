@@ -36,6 +36,8 @@ var topLedCurrent = 0
 var bottomLedBlinkState = false
 var bottomLedCurrent = 0
 
+var rotateTopLed = 1
+
 var ip = require("ip")
 var os = require("os")
 
@@ -400,25 +402,39 @@ function processLeds() {
 
   // middle
   if (topLedPosition == 1) {
-    topLedPosition = 2
-    motorHat.steppers[1].step('back', 270, (err, result) => {
-      topLedPosition = 4
-    })
-  } else 
-  // left
-  if (topLedPosition == 3) {
-    topLedPosition = 2
-    motorHat.steppers[1].step('back', 540, (err, result) => {
-      topLedPosition = 4
-    })
-  } else 
-  // right
-  if (topLedPosition == 4) {
-    topLedPosition = 2
-    motorHat.steppers[1].step('fwd', 540, (err, result) => {
-      topLedPosition = 3
-    })
-  }
+    if (rotateTopLed == 1) {
+      topLedPosition = 2
+      motorHat.steppers[1].step('back', 270, (err, result) => {
+        topLedPosition = 4
+      })
+    }
+  } else
+    // left
+    if (topLedPosition == 3) {
+      topLedPosition = 2
+      if (rotateTopLed == 1) {
+        motorHat.steppers[1].step('back', 540, (err, result) => {
+          topLedPosition = 4
+        })
+      } else {
+        motorHat.steppers[1].step('back', 270, (err, result) => {
+          topLedPosition = 1
+        })
+      }
+    } else
+      // right
+      if (topLedPosition == 4) {
+        topLedPosition = 2
+        if (rotateTopLed == 1) {
+          motorHat.steppers[1].step('fwd', 540, (err, result) => {
+            topLedPosition = 3
+          })
+        } else {
+          motorHat.steppers[1].step('fwd', 540, (err, result) => {
+            topLedPosition = 1
+          })
+        }
+      }
 }
 
 function setColors(start, size, colors) {
@@ -462,6 +478,12 @@ app.get('/setneopixel/function/:function', function (req, res) {
   var functionValue = parseLedFunctionEnum(req.params.function);
   bottomLedFunction = functionValue;
   notifyChangedBottomLedFunction();
+  res.json('OK')
+})
+
+// Set rotate topled: 0, 1
+app.get('/setrotateled/on', function (req, res) {
+  rotateTopLed = req.params.on;
   res.json('OK')
 })
 
