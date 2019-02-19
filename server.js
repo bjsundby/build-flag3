@@ -482,7 +482,7 @@ app.get('/setneopixel/function/:function', function (req, res) {
 })
 
 // Set rotate topled: 0, 1
-app.get('/setrotateled/on', function (req, res) {
+app.get('/setrotateled/:on', function (req, res) {
   rotateTopLed = req.params.on;
   res.json('OK')
 })
