@@ -430,7 +430,7 @@ function processLeds() {
             topLedPosition = 3
           })
         } else {
-          motorHat.steppers[1].step('fwd', 540, (err, result) => {
+          motorHat.steppers[1].step('fwd', 270, (err, result) => {
             topLedPosition = 1
           })
         }
