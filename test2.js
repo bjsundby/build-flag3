@@ -26,10 +26,22 @@ Object.keys(signals).forEach(function (signal) {
   });
 });
 
-// 0xwwbbggrr
-currentColorSet1[4] = 0x000000ff
-currentColorSet1[5] = 0x0000ff00
-currentColorSet1[6] = 0x00ff0000
-currentColorSet1[7] = 0xff000000
+// Generate integer from RGB value
+function colorCombine(r, g, b, w) {
+  return ((w & 0xff) << 24) + ((b & 0xff) << 16) + ((g & 0xff) << 8) + (r & 0xff)
+}
 
+// 0xwwbbggrr
+
+currentColorSet1[4] = colorCombine(255,0,0,0)
+currentColorSet1[5] = colorCombine(0,255,0,0)
+currentColorSet1[6] = colorCombine(0,0,255,0)
+currentColorSet1[7] = colorCombine(0,0,0,255)
+
+/*
+currentColorSet1[4] = colorCombine(0,0,0,0)
+currentColorSet1[5] = colorCombine(0,0,0,0)
+currentColorSet1[6] = colorCombine(0,0,0,0)
+currentColorSet1[7] = colorCombine(0,0,0,0)
+*/
 ws281x.render()
