@@ -62,7 +62,7 @@ wpi.setup('gpio')
 var app = express()
 app.set('port', (process.env.PORT || 3002))
 
-// Setup Leds
+// Setup Leds  SK6812_STRIP_GRBW
 const channels = ws281x.init({
   dma: 5,
   freq: 800000,
