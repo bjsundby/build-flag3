@@ -117,35 +117,11 @@ function colorCombine(r, g, b, w) {
   return ((w & 0xff) << 24) + ((b & 0xff) << 16) + ((g & 0xff) << 8) + (r & 0xff)
 }
 
-// Extraxt color part (r,g,b) from integer
-function colorExtract(color, name) {
-  switch (name) {
-    case "r":
-      return (color >> 16) & 0xff
-    case "g":
-      return (color >> 8) & 0xff
-    case "b":
-      return color & 0xff
-  }
-  return 0
-}
-
 function parseRGBColorsString(colorsString) {
   var strings = colorsString.split(",")
   var colors = []
   strings.forEach(function (colorString) {
     colors.push(parseInt(colorString, 10))
-  })
-  return colors
-}
-
-function parseGRBColorsString(colorsString) {
-  var strings = colorsString.split(",")
-  var colors = []
-  strings.forEach(function (colorString) {
-    var c = parseInt(colorString, 10)
-    var modifiedColorValue = (((c >> 16) & 255) << 8) + (((c >> 8) & 255) << 16) + (c & 255)
-    colors.push(modifiedColorValue)
   })
   return colors
 }
@@ -189,7 +165,7 @@ function getLedFunctionEnumString(value) {
 }
 
 function lightsOffLeds() {
-  currentColorSet.fill(colorCombine(0, 0, 0, 0), 0, 19)
+  currentColorSet.fill(colorCombine(0, 0, 0, 0), 0, 8)
   ws281x.render(currentColorSet)
 }
 
@@ -489,7 +465,7 @@ app.get('/setrotateled/:on', function (req, res) {
 
 // Set rgbled colors
 app.get('/setrgbled/colors/:colors', function (req, res) {
-  var colors = parseGRBColorsString(req.params.colors);
+  var colors = parseRGBColorsString(req.params.colors);
   setColors(4, 4, colors);
   res.json('OK')
 })
