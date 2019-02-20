@@ -430,7 +430,7 @@ function processLeds() {
             topLedPosition = 3
           })
         } else {
-          motorHat.steppers[1].step('fwd', 540, (err, result) => {
+          motorHat.steppers[1].step('fwd', 270, (err, result) => {
             topLedPosition = 1
           })
         }
@@ -490,14 +490,14 @@ app.get('/setrotateled/:on', function (req, res) {
 // Set rgbled colors
 app.get('/setrgbled/colors/:colors', function (req, res) {
   var colors = parseGRBColorsString(req.params.colors);
-  setColors(16, 3, colors);
+  setColors(4, 4, colors);
   res.json('OK')
 })
 
 // Set neopixel colors
 app.get('/setneopixel/colors/:colors', function (req, res) {
   var colors = parseRGBColorsString(req.params.colors);
-  setColors(0, 16, colors);
+  setColors(0, 4, colors);
   res.json('OK')
 })
 
