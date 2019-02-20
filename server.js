@@ -45,14 +45,14 @@ var os = require("os")
 /* --- Color sets ---------------------------------- */
 
 var definedColorSet = [
-  colorCombine(255, 0, 0),
-  colorCombine(0, 255, 0),
-  colorCombine(0, 0, 255),
-  colorCombine(255, 0, 0),
-  colorCombine(0, 255, 0),
-  colorCombine(0, 0, 255),
-  colorCombine(255, 0, 0),
-  colorCombine(0, 255, 0)
+  colorCombine(255, 0, 0, 0),
+  colorCombine(0, 255, 0, 0),
+  colorCombine(0, 0, 255, 0),
+  colorCombine(255, 0, 0, 0),
+  colorCombine(0, 255, 0, 0),
+  colorCombine(0, 0, 255, 0),
+  colorCombine(255, 0, 0, 0),
+  colorCombine(0, 255, 0, 0)
 ]
 /* --- Setup subsystems ------------------------------- */
 
@@ -113,8 +113,8 @@ function readLightSwitch() {
 }
 
 // Generate integer from RGB value
-function colorCombine(r, g, b) {
-  return ((r & 0xff) << 16) + ((g & 0xff) << 8) + (b & 0xff)
+function colorCombine(r, g, b, w) {
+  return ((w & 0xff) << 24) + ((b & 0xff) << 16) + ((g & 0xff) << 8) + (r & 0xff)
 }
 
 // Extraxt color part (r,g,b) from integer
@@ -189,7 +189,7 @@ function getLedFunctionEnumString(value) {
 }
 
 function lightsOffLeds() {
-  currentColorSet.fill(colorCombine(0, 0, 0), 0, 19)
+  currentColorSet.fill(colorCombine(0, 0, 0, 0), 0, 19)
   ws281x.render(currentColorSet)
 }
 
@@ -286,7 +286,7 @@ function MoveFlagToPosition() {
 function setTopLeds(ledFunction) {
   switch (ledFunction) {
     case "Off":
-      currentColorSet.fill(colorCombine(0, 0, 0), 4, 8)
+      currentColorSet.fill(colorCombine(0, 0, 0, 0), 4, 8)
       break
     case "On":
       for (index = 4; index < 8; index++) {
@@ -308,7 +308,7 @@ function setTopLeds(ledFunction) {
         topLedBlinkState = false
       }
       else {
-        currentColorSet.fill(colorCombine(0, 0, 0), 4, 8)
+        currentColorSet.fill(colorCombine(0, 0, 0, 0), 4, 8)
         topLedBlinkState = true
       }
       break
@@ -318,7 +318,7 @@ function setTopLeds(ledFunction) {
 function setBottomLeds(ledFunction) {
   switch (ledFunction) {
     case "Off":
-      currentColorSet.fill(colorCombine(0, 0, 0), 0, 4)
+      currentColorSet.fill(colorCombine(0, 0, 0, 0), 0, 4)
       break
     case "On":
       for (index = 0; index < 4; index++) {
@@ -340,7 +340,7 @@ function setBottomLeds(ledFunction) {
         bottomLedBlinkState = false
       }
       else {
-        currentColorSet.fill(colorCombine(0, 0, 0), 0, 4)
+        currentColorSet.fill(colorCombine(0, 0, 0, 0), 0, 4)
         bottomLedBlinkState = true
       }
       break
