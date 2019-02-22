@@ -462,6 +462,7 @@ app.get('/setneopixel/function/:function', function (req, res) {
 // Set rotate topled: 0, 1
 app.get('/setrotateled/:on', function (req, res) {
   rotateTopLed = req.params.on;
+  notifyChangedRotateTopLed();
   res.json('OK')
 })
 
@@ -522,6 +523,12 @@ function notifyChangedFlagPosition() {
   io.emit("flagPosition", {
     current: Math.round(currentFlagPosition / stepFactor),
     next: Math.round(nextFlagPosition / stepFactor)
+  })
+}
+
+function notifyChangedRotateTopLed() {
+  io.emit("topLed", {
+    rotateTopLed: rotateTopLed,
   })
 }
 

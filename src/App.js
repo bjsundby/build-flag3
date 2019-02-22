@@ -52,19 +52,19 @@ class App extends Component {
 
   updateTopLedFunction(topLedFunction) {
     this.setState({
-      topLed: topLedFunction
+      topLed: topLedFunction.topLed
     })
   }
 
   updateBottomLedFunction(bottomLedFunction) {
     this.setState({
-      bottomLed: bottomLedFunction
+      bottomLed: bottomLedFunction.bottomLed
     })
   }
 
   updateRotateTopLed(on) {
     this.setState({
-      rotateTopLed: on
+      rotateTopLed: on.rotateTopLed
     })
   }
 
@@ -116,7 +116,6 @@ class App extends Component {
 
   render() {
     let { nextPosition } = this.state
-    console.log(this.state.topLed)
     return (
       <div className="App">
         <div className="App-header">
