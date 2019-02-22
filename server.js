@@ -527,7 +527,7 @@ function notifyChangedFlagPosition() {
 }
 
 function notifyChangedRotateTopLed() {
-  io.emit("topLed", {
+  io.emit("rotateTopLed", {
     rotateTopLed: rotateTopLed,
   })
 }
