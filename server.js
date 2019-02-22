@@ -65,7 +65,7 @@ app.set('port', (process.env.PORT || 3002))
 
 // Setup Leds  SK6812_STRIP_GRBW
 const channels = ws281x.init({
-  dma: 5,
+  dma: 10,
   freq: 800000,
   channels: [
     { count: 11, gpio: 18, invert: false, brightness: 100, stripType: 'sk6812w' }
