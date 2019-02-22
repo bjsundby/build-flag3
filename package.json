@@ -1,5 +1,5 @@
 {
-  "name": "build-flag2",
+  "name": "build-flag3",
   "version": "0.1.0",
   "private": true,
   "devDependencies": {
@@ -9,17 +9,17 @@
     "whatwg-fetch": "^3.0.0",
     "express": "^4.16.4",
     "i2c-bus": "^4.0.7",
-    "ip": "^1.1.5",
     "motor-hat": "^2.0.6",
-    "node-rest-client": "^3.1.0",
     "node-wiring-pi": "^0.0.4",
     "npm-run-all": "^4.1.5",
-    "os": "^0.1.1",
     "react": "^16.8.2",
     "react-dom": "^16.8.2",
     "react-rangeslider": "^2.2.0",
-    "rpi-ws281x-native": "^1.0.0-alpha1",
-    "socket.io": "^2.2.0"
+    "rpi-ws281x-native": "^1.0.0-alpha1"
+    //"node-rest-client": "^3.1.0",
+    //"os": "^0.1.1",
+    //"ip": "^1.1.5",
+    //"socket.io": "^2.2.0"
   },
   "scripts": {
     "web": "react-scripts start",

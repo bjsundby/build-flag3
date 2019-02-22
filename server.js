@@ -1,10 +1,9 @@
 /* --- Dependencies ---------------------------------- */
 
 var express = require('express')
-var Client = require('node-rest-client').Client
+//var Client = require('node-rest-client').Client
 var ws281x = require('rpi-ws281x-native')
 var wpi = require("node-wiring-pi")
-var client = new Client()
 
 /* --- State variables ------------------------------- */
 
@@ -38,8 +37,8 @@ var bottomLedCurrent = 0
 
 var rotateTopLed = 1
 
-var ip = require("ip")
-var os = require("os")
+//var ip = require("ip")
+//var os = require("os")
 
 
 /* --- Color sets ---------------------------------- */
@@ -55,6 +54,8 @@ var definedColorSet = [
   colorCombine(0, 255, 0, 0)
 ]
 /* --- Setup subsystems ------------------------------- */
+
+//var client = new Client()
 
 wpi.setup('gpio')
 
@@ -325,6 +326,7 @@ function setBottomLeds(ledFunction) {
 
 /* --- Processing functions ---------------------------------- */
 
+/*
 function reportUrl() {
   var link = 'http://' + ip.address() + ':3000';
   var url = 'https://buildflag-hub.herokuapp.com/api/updateTarget?name=' + os.hostname() + '&link=' + link
@@ -335,6 +337,7 @@ function reportUrl() {
     console.log('reportUrl error', err);
   });
 }
+*/
 
 function processFlag() {
   try {
@@ -356,7 +359,7 @@ function processFlag() {
     }
 
     // Notify clients about positions
-    notifyChangedFlagPosition()
+    //notifyChangedFlagPosition()
   } catch (error) {
     console.log("Crashed in processFlag", error)
   }
@@ -437,7 +440,7 @@ app.get('/getStatus', function (req, res) {
 // Set flag position in %
 app.get('/setflag/:position', function (req, res) {
   nextFlagPosition = req.params.position * stepFactor
-  notifyChangedFlagPosition()
+  //notifyChangedFlagPosition()
   res.json('OK')
 })
 
@@ -445,7 +448,7 @@ app.get('/setflag/:position', function (req, res) {
 app.get('/setrgbled/function/:function', function (req, res) {
   var functionValue = parseLedFunctionEnum(req.params.function);
   topLedFunction = functionValue;
-  notifyChangedTopLedFunction();
+  //notifyChangedTopLedFunction();
   res.json('OK')
 })
 
@@ -453,7 +456,7 @@ app.get('/setrgbled/function/:function', function (req, res) {
 app.get('/setneopixel/function/:function', function (req, res) {
   var functionValue = parseLedFunctionEnum(req.params.function);
   bottomLedFunction = functionValue;
-  notifyChangedBottomLedFunction();
+  //notifyChangedBottomLedFunction();
   res.json('OK')
 })
 
@@ -502,18 +505,21 @@ calibrateTopLights()
 // Main processing loop, runs 2Hz
 const server = app.listen(app.get('port'), () => {
   console.log(`Find the server at: http://localhost:${app.get('port')}/`) // eslint-disable-line no-console
-  reportUrl()
+  //reportUrl()
   setInterval(function () {
     processFlag()
     processLeds()
   }, 500)
+  /*
   setInterval(function () {
     reportUrl()
   }, 60 * 4000)
+  */
 })
 
 /* --- Client push setup and functions ---------------------------------- */
 
+/*
 const io = require('socket.io')(server)
 
 function notifyChangedFlagPosition() {
@@ -534,3 +540,4 @@ function notifyChangedBottomLedFunction() {
     bottomLed: getLedFunctionEnumString(bottomLedFunction),
   })
 }
+*/
