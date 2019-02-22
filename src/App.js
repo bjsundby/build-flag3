@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import Slider from 'react-rangeslider'
-import { getStatus, setFlagPosition, setTopLedFunction, setBottomLedFunction } from './Service'
+import { getStatus, setFlagPosition, setTopLedFunction, setBottomLedFunction, setRotateTopLed } from './Service'
 
 import './App.css'
 
@@ -21,7 +21,8 @@ class App extends Component {
       },
       nextPosition: 0,
       topLed: 'Off',
-      bottomLed: 'Off'
+      bottomLed: 'Off',
+      rotateTopLed: 0
     }
   }
 
@@ -29,6 +30,7 @@ class App extends Component {
     socket.on('flagPosition', this.updateFlagPosition.bind(this))
     socket.on('topLed', this.updateTopLedFunction.bind(this))
     socket.on('bottomLed', this.updateBottomLedFunction.bind(this))
+    socket.on('rotateTopLed', this.updateRotateTopLed.bind(this))
 
     getStatus().then((status) => {
       this.setState({
@@ -36,7 +38,8 @@ class App extends Component {
         flagPosition: status.flagPosition,
         nextPosition: parseInt(status.flagPosition.next, 10),
         topLed: status.rgbLedFunction,
-        bottomLed: status.neoPixelFunction
+        bottomLed: status.neoPixelFunction,
+        rotateTopLed: status.rotateTopLed
       })
     })
   }
@@ -56,6 +59,12 @@ class App extends Component {
   updateBottomLedFunction(bottomLedFunction) {
     this.setState({
       bottomLed: bottomLedFunction
+    })
+  }
+
+  updateRotateTopLed(on) {
+    this.setState({
+      rotateTopLed: on
     })
   }
 
@@ -89,8 +98,25 @@ class App extends Component {
     setBottomLedFunction(bottomLedFunction)
   }
 
+  handleRotateTopLedChange = (changeEvent) => {
+    var newValue = '0'
+    if (changeEvent.target.value === 'On') { newValue = '1' }
+    this.setState({
+      rotateTopLed: newValue
+    });
+  }
+
+  setRotateTopLed(e, rotateTopLed) {
+    setRotateTopLed(rotateTopLed)
+  }
+
+  getRotateTopLedAsString(rotateState) {
+    if (rotateState === '0') { return 'Off' } else {return 'On'}
+  }
+
   render() {
     let { nextPosition } = this.state
+    console.log(this.state.topLed)
     return (
       <div className="App">
         <div className="App-header">
@@ -106,6 +132,28 @@ class App extends Component {
             onChange={this.handlePositionChange}
           />
           <button onClick={e => this.setFlagPosition(e, this.state.nextPosition)}>Set Flag position</button>
+        </div>
+        <div className="TopLedRotatorContainer">
+          <div className="TopLedRotator">Top Led rotator: {this.getRotateTopLedAsString(this.state.rotateTopLed)}.</div>
+          <form className="TopForm">
+            <div className="radio">
+              <label>
+                <input type="radio" value="Off"
+                  checked={this.state.rotateTopLed === '0'}
+                  onChange={this.handleRotateTopLedChange} />
+                Off
+              </label>
+            </div>
+            <div className="radio">
+              <label>
+                <input type="radio" value="On"
+                  checked={this.state.rotateTopLed === '1'}
+                  onChange={this.handleRotateTopLedChange} />
+                On
+              </label>
+            </div>
+          </form>
+          <button onClick={e => this.setRotateTopLed(e, this.state.rotateTopLed)}>Set Top Led rotation</button>
         </div>
         <div className="TopLedContainer">
           <div className="TopInformation">Top Led function: {this.state.topLed}.</div>

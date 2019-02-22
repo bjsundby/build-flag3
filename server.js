@@ -431,7 +431,8 @@ app.get('/getStatus', function (req, res) {
       next: Math.round(nextFlagPosition / stepFactor)
     },
     rgbLedFunction: getLedFunctionEnumString(topLedFunction),
-    neoPixelFunction: getLedFunctionEnumString(bottomLedFunction)
+    neoPixelFunction: getLedFunctionEnumString(bottomLedFunction),
+    rotateTopLed: rotateTopLed
   })
 })
 

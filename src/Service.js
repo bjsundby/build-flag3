@@ -31,3 +31,8 @@ export function setBottomLedFunction(ledFunction) {
     .then(response => response.json());
 }
 
+export function setRotateTopLed(on) {
+  var url = '/setrotateled/' + on;
+  return fetch(url, options)
+    .then(response => response.json());
+}
